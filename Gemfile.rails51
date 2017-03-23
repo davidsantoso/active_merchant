@@ -8,6 +8,6 @@ group :test, :remote_test do
   gem 'braintree', '>= 2.50.0'
 end
 
-gem 'rails', github: 'rails/rails'
+gem 'rails', '~> 5.1.0'
 gem 'arel', github: 'rails/arel'
 gem 'rack', github: 'rack/rack'
