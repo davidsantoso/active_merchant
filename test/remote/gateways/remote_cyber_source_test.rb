@@ -9,6 +9,12 @@ class RemoteCyberSourceTest < Test::Unit::TestCase
     @credit_card = credit_card('4111111111111111', verification_value: '321')
     @declined_card = credit_card('801111111111111')
     @pinless_debit_card = credit_card('4002269999999999')
+    @three_ds_enrolled_card = credit_card('4000000000000002',
+      verification_value: '321',
+      month: "12",
+      year: "#{Time.now.year + 2}",
+      brand: :visa
+    )
 
     @amount = 100
 
@@ -45,6 +51,19 @@ class RemoteCyberSourceTest < Test::Unit::TestCase
         :amount => 100
       }
     }
+  end
+
+  def test_successful_3dsecure_purchase
+    assert response = @gateway.purchase(1202, @three_ds_enrolled_card, @options.merge(payer_auth_enroll_service: true))
+    require 'pry'
+    binding.pry
+    assert_equal '3DS AUTHENTICATION REQUIRED', response.message
+    assert_equal "65802", response.params["responseCode"]
+    assert response.test?
+    assert !response.authorization.blank?
+    assert !response.params["threeDSACSURL"].blank?
+    assert !response.params["threeDSMD"].blank?
+    assert !response.params["threeDSPaReq"].blank?
   end
 
   def test_transcript_scrubbing

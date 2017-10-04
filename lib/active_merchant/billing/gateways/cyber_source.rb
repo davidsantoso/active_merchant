@@ -294,6 +294,7 @@ module ActiveMerchant #:nodoc:
           add_check_service(xml)
         else
           add_purchase_service(xml, payment_method_or_reference, options)
+          xml.tag! 'payerAuthEnrollService', {'run' => 'true'} if options[:payer_auth_enroll_service]
           add_payment_network_token(xml) if network_tokenization?(payment_method_or_reference)
           add_business_rules_data(xml, payment_method_or_reference, options) unless options[:pinless_debit_card]
         end
