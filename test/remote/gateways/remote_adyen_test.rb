@@ -61,7 +61,17 @@ class RemoteAdyenTest < Test::Unit::TestCase
       shopper_reference: 'John Smith',
       billing_address: address(),
       order_id: '123',
-      stored_credential: {reason_type: 'unscheduled'}
+      stored_credential: {reason_type: 'unscheduled'},
+      browser_info: {
+        accept_header: "unknown",
+        depth: 100,
+        java: false,
+        language: "US",
+        height: 1000,
+        width: 500,
+        timezone: "-120",
+        user_agent: "unknown"
+      }
     }
   end
 

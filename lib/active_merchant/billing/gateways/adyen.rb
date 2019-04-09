@@ -4,8 +4,8 @@ module ActiveMerchant #:nodoc:
 
       # we recommend setting up merchant-specific endpoints.
       # https://docs.adyen.com/developers/api-manual#apiendpoints
-      self.test_url = 'https://pal-test.adyen.com/pal/servlet/Payment/v18'
-      self.live_url = 'https://pal-live.adyen.com/pal/servlet/Payment/v18'
+      self.test_url = 'https://pal-test.adyen.com/pal/servlet/Payment/v40'
+      self.live_url = 'https://pal-live.adyen.com/pal/servlet/Payment/v40'
 
       self.supported_countries = ['AT', 'AU', 'BE', 'BG', 'BR', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR', 'GB', 'GI', 'GR', 'HK', 'HU', 'IE', 'IS', 'IT', 'LI', 'LT', 'LU', 'LV', 'MC', 'MT', 'MX', 'NL', 'NO', 'PL', 'PT', 'RO', 'SE', 'SG', 'SK', 'SI', 'US']
       self.default_currency = 'USD'
@@ -53,6 +53,24 @@ module ActiveMerchant #:nodoc:
         add_address(post, options)
         add_installments(post, options) if options[:installments]
         add_3ds(post, options)
+
+        post[:browserInfo] = {
+          acceptHeader: options[:browser_info][:accept_header] || "unknown",
+          colorDepth: options[:browser_info][:depth] || 100,
+          javaEnabled: options[:browser_info][:java] || false,
+          language: options[:browser_info][:language] || "US",
+          screenHeight: options[:browser_info][:height] || 1000,
+          screenWidth: options[:browser_info][:width] || 500,
+          timeZoneOffset: options[:browser_info][:timezone] || "-120",
+          userAgent: options[:browser_info][:user_agent] || "unknown"
+        }
+
+        post[:threeDS2RequestData] = {
+          deviceChannel: "browser",
+          notificationURL: "https://example.com/notify"
+        }
+
+
         commit('authorise', post, options)
       end
 
@@ -373,7 +391,7 @@ module ActiveMerchant #:nodoc:
       def success_from(action, response)
         case action.to_s
         when 'authorise', 'authorise3d'
-          ['Authorised', 'Received', 'RedirectShopper'].include?(response['resultCode'])
+          ['Authorised', 'Received', 'RedirectShopper', 'IdentifyShopper', 'ChallengeShopper'].include?(response['resultCode'])
         when 'capture', 'refund', 'cancel', 'adjustAuthorisation'
           response['response'] == "[#{action}-received]"
         else
